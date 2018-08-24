@@ -1,5 +1,6 @@
 package pl.cdbr.mazer.view
 
+import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.canvas.Canvas
 import javafx.scene.canvas.GraphicsContext
@@ -14,11 +15,12 @@ import tornadofx.*
 class MainView : View("aMaaaaze!") {
     private var ctx: GraphicsContext by singleAssign()
     private var cnv: Canvas by singleAssign()
-    private val notGenerated = SimpleBooleanProperty(true)
+    private val canStart = SimpleBooleanProperty(false)
+    private val started = SimpleBooleanProperty(false)
     private var game: Game? = null
 
-    override val root = vbox {
-        hbox {
+    override val root = vbox(spacing = 5) {
+        hbox(spacing = 5) {
             button("Generate!") {
                 action {
                     drawMaze()
@@ -26,12 +28,25 @@ class MainView : View("aMaaaaze!") {
             }
             spacer { }
             button("Start") {
-                disableWhen { notGenerated }
+                enableWhen { canStart }
                 action {
                     startWalking()
                 }
             }
+            button("Reset") {
+                enableWhen { started }
+                action {
+                    resetGame()
+                }
+            }
+            spacer { }
+            button("Exit") {
+                action {
+                    Platform.exit()
+                }
+            }
         }
+
         cnv = canvas(width = canvX, height = canvY) {
             addClass(Styles.maze)
             ctx = graphicsContext2D
@@ -40,15 +55,27 @@ class MainView : View("aMaaaaze!") {
         addEventHandler(KeyEvent.KEY_PRESSED, ::kpHandler)
     }
 
-    fun startWalking() {
+    private fun resetGame() {
         val g = game ?: return
+        showPlayer(g.player, clear = true)
         g.reset()
         showPlayer(g.player)
         game = g
     }
 
-    fun kpHandler(ev: KeyEvent) {
+    private fun startWalking() {
         val g = game ?: return
+        canStart.value = false
+        started.value = true
+        showPlayer(g.player)
+        game = g
+    }
+
+    private fun kpHandler(ev: KeyEvent) {
+        val g = game ?: return
+        if (!started.value) {
+            return
+        }
         val dir = when (ev.code) {
             KeyCode.UP -> Dir.N
             KeyCode.DOWN -> Dir.S
@@ -57,6 +84,7 @@ class MainView : View("aMaaaaze!") {
             else -> null
         }
         if (dir != null) {
+            ev.consume()
             showPlayer(g.player, clear = true)
             val moved = g.tryMove(dir)
             if (!moved) {
@@ -67,7 +95,7 @@ class MainView : View("aMaaaaze!") {
         }
     }
 
-    fun drawMaze() {
+    private fun drawMaze() {
         val maze = Maze(Config.mazeX, Config.mazeY)
         MazeGen(maze).generate()
         game = Game(maze)
@@ -114,7 +142,8 @@ class MainView : View("aMaaaaze!") {
         intRect(Config.mazeX * 4 - 3, Config.mazeY * 4 - 3, 2, 2)
         ctx.fill()
 
-        notGenerated.value = false
+        canStart.value = true
+        started.value = false
     }
 
     private fun intRect(x0: Int, y0: Int, xd: Int, yd: Int) {
@@ -133,12 +162,11 @@ class MainView : View("aMaaaaze!") {
                 playerSize, playerSize)
     }
 
-
     companion object {
         val canvX = Config.mazeX * Config.tileSize * 1.0
         val canvY = Config.mazeY * Config.tileSize * 1.0
         val sqSize = Config.tileSize / 4.0
-        val playerSizeRatio = 0.4
+        private val playerSizeRatio = 0.4
         val playerSize = playerSizeRatio * Config.tileSize
         val playerOffsetRatio = (1 - playerSizeRatio) / 2
     }
