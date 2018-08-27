@@ -6,6 +6,8 @@ class Cell(
         val x: Int, val y: Int,
         val exits: MutableSet<Dir> = mutableSetOf()
 ) {
+    val xd = x.toDouble()
+    val yd = y.toDouble()
 
     // Funkcja "pączkująca" w podanym kierunku (d). Zwraca nowo wypączkowaną komórkę.
     // Tworzy z obu stron wyjścia w zbiorze "exits".
@@ -28,7 +30,7 @@ class Cell(
 // Klasa reprezentuje labirynt.
 // Posiada wiedzę o rozmiarze (xs, ys) oraz o położeniu komórek (cells).
 // Potrafi okreslić, czy komórka może "wypączkować" w którąś ze stron.
-class Maze(private val xs: Int, private val ys: Int) {
+class Maze(val xs: Int, val ys: Int) {
     private val cells = Array(ys) { _ ->
         Array<Cell?>(xs) {
             null

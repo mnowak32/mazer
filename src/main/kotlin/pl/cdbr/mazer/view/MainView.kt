@@ -39,6 +39,12 @@ class MainView : View("aMaaaaze!") {
                     resetGame()
                 }
             }
+            button("Go 3D!") {
+                enableWhen { started }
+                action {
+                    go3d()
+                }
+            }
             spacer { }
             button("Exit") {
                 action {
@@ -53,6 +59,10 @@ class MainView : View("aMaaaaze!") {
         }
     }.apply {
         addEventHandler(KeyEvent.KEY_PRESSED, ::kpHandler)
+    }
+
+    private fun go3d() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun resetGame() {
@@ -154,9 +164,16 @@ class MainView : View("aMaaaaze!") {
         ctx.rect(cx0, cy0, cx1, cy1)
     }
 
-    private fun showPlayer(p: Player, clear: Boolean = false) = showPlayer(p.x, p.y, clear)
+    private fun showPlayer(p: Player, clear: Boolean = false) {
+        showPlayer(p.x, p.y, clear)
+        if (!clear) {
+            ctx.stroke = Color.BLACK
+            ctx.lineWidth = 1.0
+            ctx.strokeLine()
+        }
+    }
 
-    private fun showPlayer(x: Int, y: Int, clear: Boolean = false) {
+    private fun showPlayer(x: Double, y: Double, clear: Boolean = false) {
         ctx.fill = if (clear) Color.WHITESMOKE else Color.ORANGE
         ctx.fillOval((x + playerOffsetRatio) * Config.tileSize, (y + playerOffsetRatio) * Config.tileSize,
                 playerSize, playerSize)
