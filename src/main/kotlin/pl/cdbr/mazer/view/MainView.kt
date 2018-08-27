@@ -7,7 +7,7 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Color
-import pl.cdbr.mazer.app.Config
+import pl.cdbr.mazer.model.Config
 import pl.cdbr.mazer.app.Styles
 import pl.cdbr.mazer.model.*
 import tornadofx.*

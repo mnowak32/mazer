@@ -1,4 +1,4 @@
-package pl.cdbr.mazer.app
+package pl.cdbr.mazer.model
 
 import javafx.scene.paint.Color
 
@@ -9,6 +9,8 @@ object Config {
 
     const val screenX = 640
     const val screenY = 480
+
+    const val viewPortAngle = 90
 
     val ceilColor = Color.DARKOLIVEGREEN
     val floorColor = Color.BEIGE

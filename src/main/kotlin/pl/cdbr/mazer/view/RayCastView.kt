@@ -2,7 +2,7 @@ package pl.cdbr.mazer.view
 
 import javafx.scene.canvas.GraphicsContext
 import javafx.scene.input.KeyEvent
-import pl.cdbr.mazer.app.Config
+import pl.cdbr.mazer.model.Config
 import tornadofx.*
 
 class RayCastView : View("3D maze") {

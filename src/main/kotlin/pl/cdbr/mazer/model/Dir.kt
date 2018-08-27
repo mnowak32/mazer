@@ -1,5 +1,7 @@
 package pl.cdbr.mazer.model
 
+import kotlin.math.abs
+
 // Reprezentacja czterech głównych kierunków.
 // Funkcja "move()" zwraca nową parę współrzędnych na podstawie podanych (x, y) i kierunku.
 // Funkcja "reverse()" zwraca kierunek odwrotny od danego.
@@ -16,6 +18,10 @@ enum class Dir(val move: (Int, Int) -> Pair<Int, Int>, val reverse: () -> Dir, v
             head > 135.0 && head <= 225.0 -> Dir.W
             head > 225.0 && head <= 315.0 -> Dir.S
             else -> Dir.E
+        }
+        fun inView(head: Double) = values().filter {
+            val diff = abs(it.heading() - head)
+            diff <= 90.0 || diff >= 270.0
         }
     }
 }
