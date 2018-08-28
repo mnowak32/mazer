@@ -24,7 +24,12 @@ data class Player(var x: Double, var y: Double, var heading: Double) {
         x += dx
         y += dy
     }
+
+    fun rotate(amount: Double) {
+        heading = Dir.normalizeAngle(heading + amount)
+    }
 }
+
 
 
 // Reprezentacja pojedynczej "rozgrywki". Posiada planszę labiryntu
@@ -48,7 +53,6 @@ data class Game(val maze: Maze, val player: Player = Player(0.0, 0.0, Dir.S.head
                 val (nx, ny) = d.move(player.xInt, player.yInt)
                 player.xInt = nx
                 player.yInt = ny
-                player.headingDir = d
                 true
             } else {
                 false

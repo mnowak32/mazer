@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package pl.cdbr.mazer.model.threeD
 
 import kotlin.math.PI
@@ -28,7 +30,7 @@ data class Vector(val dx: Double, val dy: Double, val dz: Double) {//technicznie
     operator fun times(m: Double) = Vector(dx * m, dy * m, dz * m)
     operator fun div(m: Double) = times(1 / m)
     // dot product / iloczyn skalarny
-    operator fun rem(v: Vector) = dx * v.dx + dy * v.dy + dz * v.dz
+    infix fun dot(v: Vector) = dx * v.dx + dy * v.dy + dz * v.dz
 
     fun length() = Math.sqrt(dx.sqr() + dy.sqr() + dz.sqr())
     fun normalize(): Vector {
@@ -59,14 +61,19 @@ data class Vector(val dx: Double, val dy: Double, val dz: Double) {//technicznie
 data class Rect(val p1: Point, val v1: Vector, val v2: Vector) {
     val p2 = p1 + v1
     val p3 = p2 + v2
-    val reversed = Rect(p3, -v1, -v2)
+    val reversed by lazy { Rect(p3, -v1, -v2) }
 //    val p4 = p1 + v2
 
     val normal = (v2 * v1).normalize()
     val middle = p1 + v1 * 0.5 + v2 * 0.5
 
     fun translate(v: Vector) = Rect(p1 + v, v1, v2)
+    // Obrót wokół osi Z (punkt 0, 0)
     fun rotateZ(fi: Double) = Rect(p1.toVector().rotateZ(fi).toPoint(), v1.rotateZ(fi), v2.rotateZ(fi))
+
+    // Oblicza punkt na powierzchni prostokąta. dx i dy to współczynniki
+    // przesunięcia wzdłuż wektorów v1 i v2 (od 0 do 1)
+    fun pointAt(dx: Double, dy: Double) = p1 + v1 * dx + v2 * dy
 }
 
 fun Double.sqr() = this * this

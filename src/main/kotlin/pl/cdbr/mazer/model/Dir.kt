@@ -6,9 +6,9 @@ import kotlin.math.abs
 // Funkcja "move()" zwraca nową parę współrzędnych na podstawie podanych (x, y) i kierunku.
 // Funkcja "reverse()" zwraca kierunek odwrotny od danego.
 enum class Dir(val move: (Int, Int) -> Pair<Int, Int>, val reverse: () -> Dir, val heading: () -> Double) {
-    N({ x, y -> x to y - 1 }, { Dir.S }, { 90.0 }),
+    N({ x, y -> x to y + 1 }, { Dir.S }, { 90.0 }),
     E({ x, y -> x + 1 to y }, { Dir.W }, { 0.0 }),
-    S({ x, y -> x to y + 1 }, { Dir.N }, { 270.0 }),
+    S({ x, y -> x to y - 1 }, { Dir.N }, { 270.0 }),
     W({ x, y -> x - 1 to y }, { Dir.E }, { 180.0 });
 
     companion object {
@@ -22,6 +22,12 @@ enum class Dir(val move: (Int, Int) -> Pair<Int, Int>, val reverse: () -> Dir, v
         fun inView(head: Double) = values().filter {
             val diff = abs(it.heading() - head)
             diff <= 90.0 || diff >= 270.0
+        }
+
+        fun normalizeAngle(ang: Double): Double = when {
+            ang < 0 -> normalizeAngle(ang + 360.0)
+            ang >= 360.0 -> normalizeAngle(ang - 360.0)
+            else -> ang
         }
     }
 }

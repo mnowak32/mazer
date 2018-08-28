@@ -19,12 +19,25 @@ data class Face(val r: Rect, val color: Color) {
     // Jeżeli oba wektory są jednostkowe, to iloczyn równa się cosinusowi tego kąta.
     // 2. Cieniowanie:
     // Ten sam cosinus (na minusie) określa jasność ściany przy cieniowaniu płaskim.
-    fun cosineFrom(p: Point) = (Vector.between(p, r.middle).normalize() % r.normal)
+    fun cosineFrom(p: Point) = (Vector.between(r.middle, p).normalize() dot r.normal)
     fun translate(v: Vector) = Face(r.translate(v), color)
     fun rotateZ(fi: Double) = Face(r.rotateZ(fi), color)
 }
 
+// Klasa wykonuje konwersję labiryntu 2d (Maze) na listę ścian w każdej lokalizacji (x, y)
 data class Maze3d(private val maze: Maze, val height: Double) {
+    // ściany w przypadku istnienia wyjścia w danym kierunku
+    private val exitFaces = listOf(
+            Face(Rect(Point(0.25, 0.25, 0.0), Vector(0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.floorColor),
+            Face(Rect(Point(0.25, 0.25, height), Vector(0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.ceilColor),
+            Face(Rect(Point(0.25, 0.25, height), Vector(0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor),
+            Face(Rect(Point(0.5, -0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor)
+    )
+    // ściana gdy nie ma wyjścia
+    private val noExitFaces = listOf(
+            Face(Rect(Point(0.25, 0.25, height), Vector(0.0, -0.5, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor)
+    )
+
     //dla każdej lokalizacji w labiryncie tworzymy listę ścian
     // ograniczających ten obszar.
     private val faces = Array(maze.ys) { y ->
@@ -39,6 +52,8 @@ data class Maze3d(private val maze: Maze, val height: Double) {
             }
         }
     }
+
+    fun getFaces(x: Int, y: Int) = faces[y][x]
 
     fun facesForPosition(p: Player): List<Face> {
         //pobieramy ściany dla:
@@ -55,16 +70,6 @@ data class Maze3d(private val maze: Maze, val height: Double) {
         }
     }
 
-    private val exitFaces = listOf(
-            Face(Rect(Point(0.25, 0.25, 0.0), Vector(0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.floorColor),
-            Face(Rect(Point(0.25, 0.25, height), Vector(0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.ceilColor),
-            Face(Rect(Point(0.25, 0.25, height), Vector(0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor),
-            Face(Rect(Point(0.5, -0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor)
-    )
-    private val noExitFaces = listOf(
-            Face(Rect(Point(0.25, 0.25, height), Vector(0.0, -0.5, 0.0), Vector(0.0, 0.0, -height)), Config.floorColor)
-    )
-
     fun dirFaces(c: Cell, d: Dir): List<Face> {
         return if (d in c.exits) {
             exitFaces
@@ -75,9 +80,9 @@ data class Maze3d(private val maze: Maze, val height: Double) {
 
     fun centralFaces(c: Cell): List<Face> {
         //podłoga
-        val floor = Rect(Point(c.xd - 0.25, c.yd - 0.25, 0.0), Vector(0.5, 0.0, 0.0), Vector(0.0, 0.5, 0.0))
+        val floor = Rect(Point(c.xd - 0.25, c.yd + 0.25, 0.0), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0))
         //sufit
-        val ceil = Rect(Point(c.xd - 0.25, c.yd - 0.25, height), Vector(0.5, 0.0, 0.0), Vector(0.0, 0.5, 0.0))
+        val ceil = Rect(Point(c.xd - 0.25, c.yd + 0.25, height), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0))
         return listOf(Face(ceil, Config.ceilColor), Face(floor, Config.floorColor))
     }
 
