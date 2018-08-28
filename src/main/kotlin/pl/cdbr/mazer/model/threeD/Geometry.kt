@@ -61,8 +61,8 @@ data class Vector(val dx: Double, val dy: Double, val dz: Double) {//technicznie
 data class Rect(val p1: Point, val v1: Vector, val v2: Vector) {
     val p2 = p1 + v1
     val p3 = p2 + v2
+    val p4 = p1 + v2
     val reversed by lazy { Rect(p3, -v1, -v2) }
-//    val p4 = p1 + v2
 
     val normal = (v2 * v1).normalize()
     val middle = p1 + v1 * 0.5 + v2 * 0.5

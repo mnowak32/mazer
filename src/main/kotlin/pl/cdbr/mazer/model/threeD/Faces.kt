@@ -6,6 +6,8 @@ import pl.cdbr.mazer.model.Cell
 import pl.cdbr.mazer.model.Dir
 import pl.cdbr.mazer.model.Maze
 import pl.cdbr.mazer.model.Player
+import java.io.File
+import kotlin.math.roundToLong
 
 data class Face(val r: Rect, val color: Color) {
     // Funkcja poniższa wykorzystywana jest do dwóch rzeczy:
@@ -37,6 +39,10 @@ data class Maze3d(private val maze: Maze, val height: Double) {
     private val noExitFaces = listOf(
             Face(Rect(Point(0.25, 0.25, height), Vector(0.0, -0.5, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor)
     )
+    private val centralFaces = listOf(
+            Face(Rect(Point(-0.25, 0.25, 0.0), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.floorColor),
+            Face(Rect(Point(-0.25, 0.25, height), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.ceilColor)
+    )
 
     //dla każdej lokalizacji w labiryncie tworzymy listę ścian
     // ograniczających ten obszar.
@@ -47,7 +53,7 @@ data class Maze3d(private val maze: Maze, val height: Double) {
                 emptyList()
             } else {
                 val vect = Vector(c.xd, c.yd, 0.0)
-                (Dir.allDirs.flatMap { dirFaces(c, it) } + centralFaces(c))
+                (Dir.allDirs.flatMap { dirFaces(c, it) } + centralFaces)
                         .map { it.translate(vect) }
             }
         }
@@ -78,13 +84,97 @@ data class Maze3d(private val maze: Maze, val height: Double) {
         }.map { it.rotateZ(d.heading()) }
     }
 
-    fun centralFaces(c: Cell): List<Face> {
-        //podłoga
-        val floor = Rect(Point(c.xd - 0.25, c.yd + 0.25, 0.0), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0))
-        //sufit
-        val ceil = Rect(Point(c.xd - 0.25, c.yd + 0.25, height), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0))
-        return listOf(Face(ceil, Config.ceilColor), Face(floor, Config.floorColor))
+    fun exportDfx() {
+        File("export.dxf").printWriter().use { out ->
+            out.println("""
+999
+DXF created from aMaze
+0
+SECTION
+2
+HEADER
+9
+${'$'}ACADVER
+1
+AC1006
+9
+${'$'}INSBASE
+10
+0.0
+20
+0.0
+30
+0.0
+9
+${'$'}EXTMIN
+10
+0.0
+20
+0.0
+9
+${'$'}EXTMAX
+10
+1000.0
+20
+1000.0
+0
+ENDSEC
+0
+SECTION
+2
+BLOCKS
+0
+ENDSEC
+0
+SECTION
+2
+ENTITIES
+            """.trimIndent())
+
+            val allFaces = faces.flatMap { it.flatMap { it } }
+            allFaces.forEach { f ->
+                val rect = f.r
+                out.println("""
+0
+3DFACE
+62
+3
+10
+${rect.p1.x.toExport()}
+20
+${rect.p1.y.toExport()}
+30
+${rect.p1.z.toExport()}
+11
+${rect.p2.x.toExport()}
+21
+${rect.p2.y.toExport()}
+31
+${rect.p2.z.toExport()}
+12
+${rect.p3.x.toExport()}
+22
+${rect.p3.y.toExport()}
+32
+${rect.p3.z.toExport()}
+13
+${rect.p4.x.toExport()}
+23
+${rect.p4.y.toExport()}
+33
+${rect.p4.z.toExport()}
+                """.trimIndent())
+            }
+
+            out.print("""
+0
+ENDSEC
+0
+EOF
+            """.trimIndent())
+        }
     }
 
 }
+fun Double.toExport() = (this * 100.0).roundToLong() / 10.0
 

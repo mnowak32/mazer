@@ -4,6 +4,7 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.WritableImage
 import javafx.scene.paint.Color
 import pl.cdbr.mazer.model.Config
+import pl.cdbr.mazer.model.event.ExportDxf
 import pl.cdbr.mazer.model.event.MazeChanged
 import pl.cdbr.mazer.model.event.PlayerUpdate
 import pl.cdbr.mazer.model.threeD.Maze3d
@@ -32,6 +33,9 @@ class RayCastView : View("3D maze") {
             val m = maze ?: return@subscribe
             val scene = Scene(pu.p, m)
             scene.drawOnto(img.pixelWriter)
+        }
+        subscribe<ExportDxf> {
+            maze?.exportDfx()
         }
     }
 

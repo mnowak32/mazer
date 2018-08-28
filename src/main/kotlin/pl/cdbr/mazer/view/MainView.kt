@@ -11,6 +11,7 @@ import javafx.scene.paint.Color
 import javafx.stage.StageStyle
 import pl.cdbr.mazer.app.Styles
 import pl.cdbr.mazer.model.*
+import pl.cdbr.mazer.model.event.ExportDxf
 import pl.cdbr.mazer.model.event.MazeChanged
 import pl.cdbr.mazer.model.event.PlayerUpdate
 import pl.cdbr.mazer.model.threeD.Vector
@@ -70,6 +71,12 @@ class MainView : View("aMaaaaze!") {
             text(playerY)
             spacer()
             text(playerH)
+            spacer()
+            button("Write DXF") {
+                action {
+                    fire(ExportDxf())
+                }
+            }
         }
     }.apply {
         addEventHandler(KeyEvent.KEY_PRESSED, ::kpHandler)
@@ -82,7 +89,7 @@ class MainView : View("aMaaaaze!") {
     }
 
     private fun go3d() {
-        find<RayCastView>().openWindow(stageStyle = StageStyle.UTILITY)
+        find<RayCastView>().openWindow()
         val g = game ?: return
         fire(MazeChanged(g.maze))
     }
