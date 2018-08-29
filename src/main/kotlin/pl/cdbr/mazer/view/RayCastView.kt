@@ -35,7 +35,7 @@ class RayCastView : View("3D maze") {
             scene.drawOnto(img.pixelWriter)
         }
         subscribe<ExportDxf> {
-            maze?.exportDfx()
+            maze?.exportStl()
         }
     }
 
@@ -48,7 +48,7 @@ class RayCastView : View("3D maze") {
         ctx.fillRect(0.0, 0.0, ctx.canvas.width, maxY)
         ctx.stroke = Config.wallColor
         ctx.lineWidth = 1.0
-        ctx.fill = Config.ceilColor
+        ctx.fill = Config.floorColor
 
         val faces = (0 .. 8).flatMap { y ->
             (0 .. 8).flatMap { x ->
@@ -56,14 +56,26 @@ class RayCastView : View("3D maze") {
             }
         }
 
+        fun fillRect2(x: Double, y: Double, w: Double, h: Double) {
+            val tx = if (w < 0) { x + w } else { x }
+            val ty = if (h < 0) { y + h } else { y }
+            val tw = if (w < 0) { -w } else { w }
+            val th = if (h < 0) { -h } else { h }
+            ctx.fillRect(tx, ty, tw, th)
+        }
+
         faces
-                .forEach { f ->
-                    val r = f.r
-                    if (f.color == Config.wallColor) {
-                        ctx.strokeLine(r.p1.x * scale + offs, maxY - (r.p1.y * scale) - offs, r.p2.x * scale + offs, maxY - (r.p2.y * scale) - offs)
-                    } else if (f.color == Config.ceilColor) {
-                        ctx.fillRect(r.p1.x * scale + offs, maxY - (r.p3.y * scale) - offs, r.v1.dx * scale, r.v2.dy * scale)
-                    }
-                }
+            .filter { it.color == Config.floorColor }
+            .forEach { f ->
+                val r = f.r
+                fillRect2(r.p1.x * scale + offs, maxY - (r.p3.y * scale) - offs, r.v1.dx * scale, r.v2.dy * scale)
+            }
+
+        faces
+            .filter { it.color == Config.wallColor }
+            .forEach { f ->
+                val r = f.r
+                ctx.strokeLine(r.p1.x * scale + offs, maxY - (r.p1.y * scale) - offs, r.p2.x * scale + offs, maxY - (r.p2.y * scale) - offs)
+            }
     }
 }

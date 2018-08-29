@@ -13,7 +13,7 @@ object Config {
     const val mazeHeight = 1.0
     const val viewPortWidth = 0.01
     const val viewPortHeight = 0.075
-    const val viewPortDistance = 0.01
+    const val viewPortDistance = 0.02
 
 
     val ceilColor: Color = Color.DARKOLIVEGREEN

@@ -12,6 +12,8 @@ data class Point(val x: Double, val y: Double, val z: Double) {
 
     fun toVector() = Vector(x, y, z)
 
+    override fun toString() = "Point($x, $y, $z)"
+
     companion object {
         val ZERO = Point(0.0, 0.0, 0.0)
     }
@@ -28,11 +30,12 @@ data class Vector(val dx: Double, val dy: Double, val dz: Double) {//technicznie
                 dx * v.dy - dy * v.dx
         )
     operator fun times(m: Double) = Vector(dx * m, dy * m, dz * m)
-    operator fun div(m: Double) = times(1 / m)
+    operator fun div(m: Double) = Vector(dx / m, dy / m, dz / m)
     // dot product / iloczyn skalarny
     infix fun dot(v: Vector) = dx * v.dx + dy * v.dy + dz * v.dz
 
-    fun length() = Math.sqrt(dx.sqr() + dy.sqr() + dz.sqr())
+    fun length() = Math.sqrt(dx * dx + dy * dy + dz * dz)
+    // tworzy wektor o długości 1.0 (lub 0, jeżeli i tak był zerowy)
     fun normalize(): Vector {
         val len = length()
         return if (len == 0.0) {
@@ -53,7 +56,6 @@ data class Vector(val dx: Double, val dy: Double, val dz: Double) {//technicznie
 
     companion object {
         val ZERO = Vector(0.0, 0.0, 0.0)
-        val UNIT = Vector(1.0, 0.0, 0.0)
         fun between(p1: Point, p2: Point) = Vector(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z)
     }
 }
@@ -74,6 +76,6 @@ data class Rect(val p1: Point, val v1: Vector, val v2: Vector) {
     // Oblicza punkt na powierzchni prostokąta. dx i dy to współczynniki
     // przesunięcia wzdłuż wektorów v1 i v2 (od 0 do 1)
     fun pointAt(dx: Double, dy: Double) = p1 + v1 * dx + v2 * dy
-}
 
-fun Double.sqr() = this * this
+    override fun toString() = "Rect($p1, $p2, $p3, $p4)"
+}

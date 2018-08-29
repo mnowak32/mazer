@@ -89,7 +89,7 @@ class MainView : View("aMaaaaze!") {
     }
 
     private fun go3d() {
-        find<RayCastView>().openWindow()
+        find<RayCastView>().openWindow()//(stageStyle = StageStyle.UTILITY)
         val g = game ?: return
         fire(MazeChanged(g.maze))
     }
@@ -182,7 +182,7 @@ class MainView : View("aMaaaaze!") {
         }
         ctx.fill()
         ctx.beginPath()
-        ctx.fill = Color.LIGHTPINK
+        ctx.fill = Color.LIGHTYELLOW
         intRect(1, 1, 2, 2)
         ctx.fill()
         ctx.beginPath()
