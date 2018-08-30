@@ -52,6 +52,13 @@ data class Vector(val dx: Double, val dy: Double, val dz: Double) {//technicznie
         return Vector(dx * cosFi - dy * sinFi, dx * sinFi + dy * cosFi, dz)
     }
 
+    fun rotateY(fi: Double): Vector {
+        val angRad = fi * PI / 180.0
+        val cosFi = cos(angRad)
+        val sinFi = sin(angRad)
+        return Vector(dx * cosFi + dz * sinFi, dy, - dx * sinFi + dz * cosFi)
+    }
+
     fun toPoint() = Point(dx, dy, dz)
 
     companion object {
@@ -72,10 +79,12 @@ data class Rect(val p1: Point, val v1: Vector, val v2: Vector) {
     fun translate(v: Vector) = Rect(p1 + v, v1, v2)
     // Obrót wokół osi Z (punkt 0, 0)
     fun rotateZ(fi: Double) = Rect(p1.toVector().rotateZ(fi).toPoint(), v1.rotateZ(fi), v2.rotateZ(fi))
+    // Obrót wokół osi Y (punkt 0, 0)
+    fun rotateY(fi: Double) = Rect(p1.toVector().rotateY(fi).toPoint(), v1.rotateY(fi), v2.rotateY(fi))
 
     // Oblicza punkt na powierzchni prostokąta. dx i dy to współczynniki
     // przesunięcia wzdłuż wektorów v1 i v2 (od 0 do 1)
     fun pointAt(dx: Double, dy: Double) = p1 + v1 * dx + v2 * dy
 
-    override fun toString() = "Rect($p1, $p2, $p3, $p4)"
+    override fun toString() = "Rect($p1, $p2, $p3, $p4, norm: $normal)"
 }

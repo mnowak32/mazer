@@ -39,7 +39,7 @@ data class Maze3d(private val maze: Maze, val height: Double) {
     // ściany w przypadku istnienia wyjścia w danym kierunku
     private val exitFaces = listOf(
             Face(Rect(Point(0.25, 0.25, 0.0), Vector(0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.floorColor),
-            Face(Rect(Point(0.5, -0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, 0.5, 0.0)), Config.ceilColor),
+            Face(Rect(Point(0.5, 0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.ceilColor),
             Face(Rect(Point(0.25, 0.25, height), Vector(0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor),
             Face(Rect(Point(0.5, -0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor)
     )
@@ -49,7 +49,7 @@ data class Maze3d(private val maze: Maze, val height: Double) {
     )
     private val centralFaces = listOf(
             Face(Rect(Point(-0.25, 0.25, 0.0), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.floorColor),
-            Face(Rect(Point(0.25, -0.25, height), Vector(-0.5, 0.0, 0.0), Vector(0.0, 0.5, 0.0)), Config.ceilColor)
+            Face(Rect(Point(0.25, 0.25, height), Vector(-0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.ceilColor)
     )
 
     //dla każdej lokalizacji w labiryncie tworzymy listę ścian
@@ -69,15 +69,30 @@ data class Maze3d(private val maze: Maze, val height: Double) {
 
     fun getFaces(x: Int, y: Int) = faces[y][x]
 
+    private fun getCellsInDir(here: Cell, d: Dir): List<Cell> {
+        return if (here.exits.contains(d)) {
+            val (newX, newY) = d.move(here.x, here.y)
+            val newCell = maze.getCell(newX, newY)
+            if (newCell != null) {
+                listOf(newCell) + getCellsInDir(newCell, d)
+            } else {
+                emptyList()
+            }
+        } else {
+            emptyList()
+        }
+    }
+
     fun facesForPosition(p: Player): List<Face> {
         //pobieramy ściany dla:
         // - aktualnej pozycji
-        // - pozycji + 1 w widocznych kierunkach (jeżeli jest przejście)
+        // - wszystkich pozycji w widocznych kierunkach w linii prostej (jeżeli są przejścia)
         val here = maze.getCell(p.xInt, p.yInt)
         return if (here != null) {
             val dirs = Dir.inView(p.heading)
             val posList = here.exits.intersect(dirs)
-            val cells = listOf(here) + posList.map { it.move(p.xInt, p.yInt) }.mapNotNull { maze.getCell(it.first, it.second)}
+            //includes "here"
+            val cells = listOf(here) + posList.flatMap { getCellsInDir(here, it) }
             cells.flatMap { faces[it.y][it.x] }
         } else {
             emptyList()
@@ -96,7 +111,8 @@ data class Maze3d(private val maze: Maze, val height: Double) {
         File("export.stl").printWriter().use { out ->
             out.println("solid maze")
 
-            val allFaces = faces.flatMap { it.flatMap { it } }
+//            val allFaces = faces.flatMap { it.flatMap { it } }
+            val allFaces = facesForPosition(Player(0.0, 0.0, 0.0))
             allFaces.forEach { f ->
                 val rect = f.r
                 out.println("""

@@ -84,8 +84,8 @@ class MainView : View("aMaaaaze!") {
 
     init {
         drawMaze()
-        startWalking()
         go3d()
+        startWalking()
     }
 
     private fun go3d() {
@@ -122,8 +122,8 @@ class MainView : View("aMaaaaze!") {
             showPlayer(g.player, clear = true)
             @Suppress("NON_EXHAUSTIVE_WHEN")
             when (ev.code) {
-                KeyCode.LEFT -> g.player.rotate(90.0)
-                KeyCode.RIGHT -> g.player.rotate(-90.0)
+                KeyCode.LEFT -> g.player.rotate(45.0)
+                KeyCode.RIGHT -> g.player.rotate(-45.0)
                 KeyCode.UP -> {
                     val dir = g.player.headingDir
                     g.tryMove(dir)
@@ -132,6 +132,8 @@ class MainView : View("aMaaaaze!") {
                     val dir = g.player.headingDir.reverse()
                     g.tryMove(dir)
                 }
+                KeyCode.PAGE_UP -> g.player.headUp()
+                KeyCode.PAGE_DOWN -> g.player.headDown()
             }
             showPlayer(g.player)
             playerX.value = g.player.x.toString()
@@ -225,6 +227,6 @@ class MainView : View("aMaaaaze!") {
         val canvY = Config.mazeY * Config.tileSize * 1.0
         val sqSize = Config.tileSize / 4.0
 
-        val consumedKeys = setOf(KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT)
+        val consumedKeys = setOf(KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.PAGE_UP, KeyCode.PAGE_DOWN)
     }
 }

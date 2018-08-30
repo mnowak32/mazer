@@ -7,13 +7,14 @@ object Config {
     const val mazeY = 16
     const val tileSize = 32
 
-    const val screenX = 320
-    const val screenY = 240
+    const val screenX = 640
+    const val screenY = 480
 
-    const val mazeHeight = 1.0
-    const val viewPortWidth = 0.01
-    const val viewPortHeight = 0.075
-    const val viewPortDistance = 0.02
+    const val mazeHeight = 0.6
+    const val headHeight = 0.35 //wartość bezwzględna, lepiej żeby była mniejsza niż mazeHeight :)
+    const val viewPortWidth = 0.02
+    const val viewPortHeight = 0.015
+    const val viewPortDistance = 0.005
 
 
     val ceilColor: Color = Color.DARKOLIVEGREEN

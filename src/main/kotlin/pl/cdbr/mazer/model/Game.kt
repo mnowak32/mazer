@@ -4,7 +4,7 @@ import kotlin.math.PI
 import kotlin.math.roundToInt
 // Klasa reprezentująca położenie gracza w labiryncie (x i y) oraz
 // kierunek, w którym jest zwrócony (heading, na razie nieużywane).
-data class Player(var x: Double, var y: Double, var heading: Double) {
+data class Player(var x: Double, var y: Double, var heading: Double, var pitch: Double = 0.0) {
     var xInt: Int
         get() = x.roundToInt()
         set(v) { x = v.toDouble() }
@@ -28,6 +28,13 @@ data class Player(var x: Double, var y: Double, var heading: Double) {
     fun rotate(amount: Double) {
         heading = Dir.normalizeAngle(heading + amount)
     }
+
+    fun headUp() {
+        if (pitch < 50.0) { pitch += 10.0 }
+    }
+    fun headDown() {
+        if (pitch > -50.0) { pitch -= 10.0 }
+    }
 }
 
 
@@ -44,7 +51,7 @@ data class Game(val maze: Maze, val player: Player = Player(0.0, 0.0, Dir.S.head
     // Próbuje ruszyć gracza w danym kierunku. Jeżeli nie uda się (brak wyjścia lub
     // mało prawdopodobny brak komórki na planszy) zwraca false.
     // W przeciwnym przypadku zwraca true, a pozycja gracza jest aktualizowana.
-    fun tryMove(d: Dir): Boolean {
+    fun tryMove(d: Dir, step: Double = 1.0): Boolean {
         val c = maze.getCell(player.xInt, player.yInt)
         return if (c == null) {
             false
