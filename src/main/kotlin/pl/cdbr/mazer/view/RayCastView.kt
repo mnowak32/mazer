@@ -1,8 +1,6 @@
 package pl.cdbr.mazer.view
 
-import javafx.scene.canvas.GraphicsContext
 import javafx.scene.image.WritableImage
-import javafx.scene.paint.Color
 import pl.cdbr.mazer.model.Config
 import pl.cdbr.mazer.model.event.ExportDxf
 import pl.cdbr.mazer.model.event.MazeChanged

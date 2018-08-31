@@ -3,7 +3,8 @@ package pl.cdbr.mazer.model.threeD
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 enum class Setup(private val p: Point, private val v: Vector, private val r: Rect, private val expect: Boolean) {
     EASY1(
@@ -27,11 +28,16 @@ enum class Setup(private val p: Point, private val v: Vector, private val r: Rec
 
     fun testWith(f: Func) {
         val result = f.intersects(p, v, r)
-        assertEquals(expect, result, "${f} for $this")
+        if (expect) {
+            assertNotNull(result, "$f for $this")
+        } else {
+            assertNull(result, "$f for $this")
+        }
+
     }
 }
 
-enum class Func(val intersects: (Point, Vector, Rect) -> Boolean) {
+enum class Func(val intersects: (Point, Vector, Rect) -> Point?) {
     BASIC(Scene.Companion::intersectsRectangleBasic),
     MT(Scene.Companion::intersectsTriangleMT)
 }

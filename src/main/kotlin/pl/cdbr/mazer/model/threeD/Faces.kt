@@ -1,15 +1,26 @@
 package pl.cdbr.mazer.model.threeD
 
 import javafx.scene.paint.Color
-import pl.cdbr.mazer.model.Config
-import pl.cdbr.mazer.model.Cell
-import pl.cdbr.mazer.model.Dir
-import pl.cdbr.mazer.model.Maze
-import pl.cdbr.mazer.model.Player
+import pl.cdbr.mazer.model.*
 import java.io.File
 import kotlin.math.roundToLong
 
 data class Face(val r: Rect, val color: Color) {
+    inner class Cosines(val c1: Double, val c2: Double, val c3: Double, val c4: Double) {
+        // implementacja cieniowania Gourad'a
+        fun cosAtPoint(p: Point?): Double {
+            if (p == null) { return 0.0 }
+            val (dv1, dv2) = r.rectCoords(p)
+//            println("$dv1, $dv2")
+            val c12 = c2 * dv1 + c1 * (1 - dv1)
+            val c34 = c3 * dv1 + c4 * (1 - dv1)
+            return c12 * (1 - dv2) + c34 * dv2
+        }
+
+        override fun toString() = "Cosines($c1, $c2, $c3, $c4)"
+
+    }
+
     // Funkcja poniższa wykorzystywana jest do dwóch rzeczy:
     // 1. Back-face culling:
     // Jeżeli kąt pomiędzy wektorami:
@@ -22,6 +33,12 @@ data class Face(val r: Rect, val color: Color) {
     // 2. Cieniowanie:
     // Ten sam cosinus (na minusie) określa jasność ściany przy cieniowaniu płaskim.
     fun cosineFrom(p: Point) = (Vector.between(p, r.middle).normalize() dot r.normal)
+    fun cosinesFrom(p: Point) = Cosines(
+            Vector.between(p, r.p1).normalize() dot r.normal,
+            Vector.between(p, r.p2).normalize() dot r.normal,
+            Vector.between(p, r.p3).normalize() dot r.normal,
+            Vector.between(p, r.p4).normalize() dot r.normal
+    )
     fun translate(v: Vector) = Face(r.translate(v), color)
     fun rotateZ(fi: Double) = Face(r.rotateZ(fi), color)
 

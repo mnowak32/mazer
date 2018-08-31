@@ -72,8 +72,12 @@ data class Rect(val p1: Point, val v1: Vector, val v2: Vector) {
     val p3 = p2 + v2
     val p4 = p1 + v2
     val reversed by lazy { Rect(p3, -v1, -v2) }
+    val v1n = v1.normalize()
+    val v1l = v1.length()
+    val v2n = v2.normalize()
+    val v2l = v2.length()
 
-    val normal = (v2 * v1).normalize()
+    val normal = (v2n * v1n)
     val middle = p1 + v1 * 0.5 + v2 * 0.5
 
     fun translate(v: Vector) = Rect(p1 + v, v1, v2)
@@ -85,6 +89,13 @@ data class Rect(val p1: Point, val v1: Vector, val v2: Vector) {
     // Oblicza punkt na powierzchni prostokąta. dx i dy to współczynniki
     // przesunięcia wzdłuż wektorów v1 i v2 (od 0 do 1)
     fun pointAt(dx: Double, dy: Double) = p1 + v1 * dx + v2 * dy
+
+    // Funkcja odwrotna do poprzedniej - na podstawie punktu zwraca współrzędne w
+    // "układzie współrzędnych" czworokąta (zero w p1, osie v1 i v2).
+    fun rectCoords(p: Point): Pair<Double, Double> {
+        val vp = Vector.between(p1, p)
+        return (vp dot v1n) / v1l to (vp dot v2n) / v2l
+    }
 
     override fun toString() = "Rect($p1, $p2, $p3, $p4, norm: $normal)"
 }

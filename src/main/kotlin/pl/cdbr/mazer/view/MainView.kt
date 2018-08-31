@@ -8,7 +8,6 @@ import javafx.scene.canvas.GraphicsContext
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.paint.Color
-import javafx.stage.StageStyle
 import pl.cdbr.mazer.app.Styles
 import pl.cdbr.mazer.model.*
 import pl.cdbr.mazer.model.event.ExportDxf
@@ -80,6 +79,7 @@ class MainView : View("aMaaaaze!") {
         }
     }.apply {
         addEventHandler(KeyEvent.KEY_PRESSED, ::kpHandler)
+//        addEventHandler(KeyEvent.KEY_RELEASED, ::krHandler)
     }
 
     init {
@@ -122,15 +122,13 @@ class MainView : View("aMaaaaze!") {
             showPlayer(g.player, clear = true)
             @Suppress("NON_EXHAUSTIVE_WHEN")
             when (ev.code) {
-                KeyCode.LEFT -> g.player.rotate(45.0)
-                KeyCode.RIGHT -> g.player.rotate(-45.0)
+                KeyCode.LEFT -> g.player.rotate(5.0)
+                KeyCode.RIGHT -> g.player.rotate(-5.0)
                 KeyCode.UP -> {
-                    val dir = g.player.headingDir
-                    g.tryMove(dir)
+                    g.tryMove(0.1)
                 }
                 KeyCode.DOWN -> {
-                    val dir = g.player.headingDir.reverse()
-                    g.tryMove(dir)
+                    g.tryMove(-0.1)
                 }
                 KeyCode.PAGE_UP -> g.player.headUp()
                 KeyCode.PAGE_DOWN -> g.player.headDown()
@@ -223,9 +221,9 @@ class MainView : View("aMaaaaze!") {
     }
 
     companion object {
-        val canvX = Config.mazeX * Config.tileSize * 1.0
-        val canvY = Config.mazeY * Config.tileSize * 1.0
-        val sqSize = Config.tileSize / 4.0
+        const val canvX = Config.mazeX * Config.tileSize * 1.0
+        const val canvY = Config.mazeY * Config.tileSize * 1.0
+        const val sqSize = Config.tileSize / 4.0
 
         val consumedKeys = setOf(KeyCode.UP, KeyCode.DOWN, KeyCode.LEFT, KeyCode.RIGHT, KeyCode.PAGE_UP, KeyCode.PAGE_DOWN)
     }
