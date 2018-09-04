@@ -5,12 +5,16 @@ import pl.cdbr.mazer.model.*
 import java.io.File
 import kotlin.math.roundToLong
 
-data class Face(val r: Rect, val color: Color) {
+data class Face(val r: Rect, val texture: Texture) {
     inner class Cosines(val c1: Double, val c2: Double, val c3: Double, val c4: Double) {
         // implementacja cieniowania Gourad'a
         fun cosAtPoint(p: Point?): Double {
             if (p == null) { return 0.0 }
             val (dv1, dv2) = r.rectCoords(p)
+//            println("$dv1, $dv2")
+            return cosAtPoint(dv1, dv2)
+        }
+        fun cosAtPoint(dv1: Double, dv2: Double): Double {
 //            println("$dv1, $dv2")
             val c12 = c2 * dv1 + c1 * (1 - dv1)
             val c34 = c3 * dv1 + c4 * (1 - dv1)
@@ -39,13 +43,13 @@ data class Face(val r: Rect, val color: Color) {
             Vector.between(p, r.p3).normalize() dot r.normal,
             Vector.between(p, r.p4).normalize() dot r.normal
     )
-    fun translate(v: Vector) = Face(r.translate(v), color)
-    fun rotateZ(fi: Double) = Face(r.rotateZ(fi), color)
+    fun translate(v: Vector) = Face(r.translate(v), texture)
+    fun rotateZ(fi: Double) = Face(r.rotateZ(fi), texture)
 
-    fun type() = when (color) {
-        Config.wallColor -> "W"
-        Config.ceilColor -> "C"
-        Config.floorColor -> "F"
+    fun type() = when (texture) {
+        Texture.wall -> "W"
+        Texture.ceil -> "C"
+        Texture.floor -> "F"
         else -> "?"
     }
     override fun toString() = "Face(${type()}, $r)"
@@ -55,18 +59,18 @@ data class Face(val r: Rect, val color: Color) {
 data class Maze3d(private val maze: Maze, val height: Double) {
     // ściany w przypadku istnienia wyjścia w danym kierunku
     private val exitFaces = listOf(
-            Face(Rect(Point(0.25, 0.25, 0.0), Vector(0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.floorColor),
-            Face(Rect(Point(0.5, 0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.ceilColor),
-            Face(Rect(Point(0.25, 0.25, height), Vector(0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor),
-            Face(Rect(Point(0.5, -0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor)
+            Face(Rect(Point(0.25, 0.25, 0.0), Vector(0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Texture.floor),
+            Face(Rect(Point(0.5, 0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Texture.ceil),
+            Face(Rect(Point(0.25, 0.25, height), Vector(0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Texture.wall),
+            Face(Rect(Point(0.5, -0.25, height), Vector(-0.25, 0.0, 0.0), Vector(0.0, 0.0, -height)), Texture.wall)
     )
     // ściana gdy nie ma wyjścia
     private val noExitFaces = listOf(
-            Face(Rect(Point(0.25, 0.25, height), Vector(0.0, -0.5, 0.0), Vector(0.0, 0.0, -height)), Config.wallColor)
+            Face(Rect(Point(0.25, 0.25, height), Vector(0.0, -0.5, 0.0), Vector(0.0, 0.0, -height)), Texture.wall)
     )
     private val centralFaces = listOf(
-            Face(Rect(Point(-0.25, 0.25, 0.0), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.floorColor),
-            Face(Rect(Point(0.25, 0.25, height), Vector(-0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Config.ceilColor)
+            Face(Rect(Point(-0.25, 0.25, 0.0), Vector(0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Texture.floor),
+            Face(Rect(Point(0.25, 0.25, height), Vector(-0.5, 0.0, 0.0), Vector(0.0, -0.5, 0.0)), Texture.ceil)
     )
 
     //dla każdej lokalizacji w labiryncie tworzymy listę ścian
@@ -128,8 +132,8 @@ data class Maze3d(private val maze: Maze, val height: Double) {
         File("export.stl").printWriter().use { out ->
             out.println("solid maze")
 
-//            val allFaces = faces.flatMap { it.flatMap { it } }
-            val allFaces = facesForPosition(Player(0.0, 0.0, 0.0))
+            val allFaces = faces.flatMap { it.flatMap { it } }
+//            val allFaces = facesForPosition(Player(0.0, 0.0, 0.0))
             allFaces.forEach { f ->
                 val rect = f.r
                 out.println("""

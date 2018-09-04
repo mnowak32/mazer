@@ -9,8 +9,19 @@ data class FaceToRender(val f: Face, val p: Point) {
 //    val cos = f.cosineFrom(p)
     val cos = f.cosinesFrom(p)
     val dist = Vector.between(p, f.r.middle).length()
-    fun colorAt(point: Point?): Color =
-            f.color.interpolate(Color.BLACK, (1.0 + cos.cosAtPoint(point)))
+    fun colorAt(point: Point?): Color {
+        return if (point == null) {
+            Color.CYAN
+        } else {
+            val (dv1, dv2) = f.r.rectCoords(point)
+            val col = f.texture.colorAt(dv1, dv2)
+            val dist = Vector.between(p, point).length()
+//            val cap = cos.cosAtPoint(dv1, dv2)
+            val brightness = 1 / (dist * dist)
+            col.interpolate(Color.BLACK, 1.0 - brightness)
+        }
+    }
+
 
     override fun toString() = "\n$f, cos: $cos"
 }
